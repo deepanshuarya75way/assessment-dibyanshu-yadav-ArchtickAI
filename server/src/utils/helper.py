@@ -40,4 +40,4 @@ def is_authenticated(request: Request, db: Session = Depends(get_db)):
         )
 
 
-model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", api_key=os.getenv("GEMINI_API_KEY"))
+model = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite", api_key=os.getenv("GEMINI_API_KEY"))

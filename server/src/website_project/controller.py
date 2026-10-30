@@ -1,3 +1,5 @@
+from typing import Any
+
 from src.users.model import UserModel
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
@@ -6,6 +8,7 @@ from src.website_project.model import WebsiteProjectModel
 from src.conversation.model import ConversationModel
 from src.version.model import VersionModel
 from src.utils.helper import model
+import json
 
 def create_website_project(body: WebsiteCreateSchema, user: UserModel, db: Session):
     """create user project"""
@@ -53,7 +56,7 @@ def create_website_project(body: WebsiteCreateSchema, user: UserModel, db: Sessi
         ]
 
         response = model.invoke(message)
-        enhanced_prompt = response.content
+        enhanced_prompt = json.dumps(response.content)
 
         # 5. Create enhanced prompt conversation entry
         enhanced_conv = ConversationModel(
@@ -86,6 +89,7 @@ def create_website_project(body: WebsiteCreateSchema, user: UserModel, db: Sessi
             - Include this EXACT script in the <head>: <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
             - Use Tailwind utility classes extensively for styling, animations, and responsiveness
             - Make it fully functional and interactive with JavaScript in <script> tag before closing </body>
+            - To import tailwind in the html use the cdn "https://cdn.tailwindcss.com" 
             - Use modern, beautiful design with great UX using Tailwind classes
             - Make it responsive using Tailwind responsive classes (sm:, md:, lg:, xl:)
             - Use Tailwind animations and transitions (animate-*, transition-*)
@@ -110,7 +114,7 @@ def create_website_project(body: WebsiteCreateSchema, user: UserModel, db: Sessi
         ]
 
         response = model.invoke(website_message)
-        get_code = response.content
+        get_code = json.dumps(response.content)
 
         # 9. storing the code version
         code_version = VersionModel(
@@ -238,7 +242,7 @@ def make_revision(project_id: int,body:WebsiteRevisionSchema, user: UserModel, d
         ]
 
         response = model.invoke(message)
-        enhanced_prompt = response.content
+        enhanced_prompt: Any = json.dumps(response.content)
 
         # 5. Create enhanced prompt conversation entry
         enhanced_conv = ConversationModel(
@@ -287,7 +291,7 @@ def make_revision(project_id: int,body:WebsiteRevisionSchema, user: UserModel, d
         ]
 
         response = model.invoke(website_revision_message)
-        get_code = response.content
+        get_code = json.dumps(response.content)
 
         # 9. storing the code version
         code_version = VersionModel(
