@@ -27,7 +27,6 @@ const ProjectPreview = forwardRef<ProjectPreviewReference, ProjectPreviewProps>(
   ) => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [selectedElement, setSelectedElement] = useState<any>(null);
-
     useImperativeHandle(ref, () => ({
       getcode: () => {
         const docinfo = iframeRef.current?.contentDocument;

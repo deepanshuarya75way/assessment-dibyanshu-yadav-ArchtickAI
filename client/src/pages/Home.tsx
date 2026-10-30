@@ -28,7 +28,7 @@ const Home = () => {
       const res = await axiosInstance.post("/website-project/create", { initial_prompt: input });
       toast.success("Architect AI is building your vision...");
       setLoading(false);
-      navigate(`/project/${res.data.project_id}`);
+      navigate(`/projects/${res.data.project_id}`);
     } catch (error) {
       toast.error("The architect encountered an error. Please try again.");
       setLoading(false);

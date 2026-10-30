@@ -29,6 +29,9 @@ const Sidebar = ({
   const messageRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
 
+  const timer = useRef<any>(null);
+  const latestRevision = useRef<any>(0);
+
   const fetchProject = async () => {
     try {
       const response = await axiosInstance.get(`/website-project/${project.id}`);
@@ -57,25 +60,32 @@ const Sidebar = ({
 
   const handleRevisions = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(isGenerating) return;
     if (!input.trim()) return;
-    let interval: any;
+    const currId = ++latestRevision.current;
+
+    clearInterval(timer.current)
+    timer.current = setInterval(fetchProject, 10000);
+    const prompt = input;
+    setInput("")
+
     try {
       setIsGenerating(true);
-      interval = setInterval(() => {
-        fetchProject();
-      }, 5000);
       const res = await axiosInstance.post(`/website-project/revision/${project.id}`, {
-        revision_prompt: input,
+        revision_prompt: prompt,
       });
-      setInput("");
-      await fetchProject();
+      
+      if(currId !== latestRevision.current) return
+
       toast.success(res.data.message);
-      clearInterval(interval);
-      setIsGenerating(false);
+      await fetchProject();
     } catch (error) {
       toast.error("Failed to update website");
-      clearInterval(interval);
-      setIsGenerating(false);
+    } finally {
+      clearInterval(timer.current)
+      if(currId == latestRevision.current){
+        setIsGenerating(false)
+      }
     }
   };
   useEffect(() => {
@@ -83,6 +93,10 @@ const Sidebar = ({
       messageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [project?.conversation?.length, isGenerating]);
+
+  useEffect(() => {
+    return () => clearInterval(timer.current);
+  },[])
 
   return (
     <div
@@ -187,6 +201,9 @@ const Sidebar = ({
           <div ref={messageRef} />
         </div>
         {/* input area */}
+        {isGenerating && <p className="text-md text-red-300 text-right px-4">
+          response is generating ...
+          </p>}
         <form onSubmit={handleRevisions} className="m-3 relative">
           <div className="flex items-center gap-2">
             <textarea
